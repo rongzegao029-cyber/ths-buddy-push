@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>THS Buddy 配对</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2f6feb">
+<style>
+:root{color-scheme:light dark}
+body{margin:0;padding:28px 20px;font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;max-width:560px}
+h1{font-size:19px;margin:0 0 6px}
+p{margin:8px 0}
+.muted{opacity:.62;font-size:13px}
+#status{margin:18px 0;padding:12px 14px;border-radius:9px;background:rgba(128,128,128,.14)}
+#status.ok{background:rgba(26,127,55,.16)}
+#status.warn{background:rgba(180,35,24,.16)}
+textarea{width:100%;min-height:130px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;padding:10px;border-radius:9px;border:1px solid rgba(128,128,128,.45);background:transparent;color:inherit}
+button{padding:9px 15px;border-radius:8px;border:1px solid rgba(128,128,128,.45);background:rgba(128,128,128,.12);color:inherit;font:inherit;cursor:pointer;margin-top:10px}
+ol{padding-left:20px}
+</style>
+</head>
+<body>
+<h1>把 THS Buddy 的告警推到这台手机</h1>
+<p class="muted">不需要安装 App，不需要注册账号，也没有每日条数上限。推送由你电脑上的 THS Buddy 直接发到浏览器的推送服务。</p>
+<div id="status">正在初始化…</div>
+<div id="manual" hidden>
+<p class="muted">如果上面提示自动回传失败，请复制下面这段文本，粘贴到电脑上 THS Buddy 控制台的“手动配对”输入框里。</p>
+<textarea id="manualText" readonly></textarea>
+<button id="copy" type="button">复制</button>
+</div>
+<p class="muted" style="margin-top:22px"><strong>iPhone 用户注意：</strong>iOS 只在“添加到主屏幕”后的网页应用里支持推送。</p>
+<ol class="muted">
+<li>点 Safari 底部的“分享”</li>
+<li>选“添加到主屏幕”</li>
+<li>回桌面，点新加的图标打开，再完成配对</li>
+</ol>
+<script src="pair.js"></script>
+</body>
+</html>
