@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '3';
+  var VERSION = '4';
   var BUS = 'https://ntfy.sh';
   var JOIN_PREFIX = 'thsbuddy-join-';
   var PAIR_PREFIX = 'thsbuddy-pair-';
@@ -218,14 +218,14 @@
         return;
       }
       await rememberForServiceWorker(list);
-      show('manual', true);
       setStatus('已回传，正在等电脑确认…', 'busy');
       waitForAck(list, function (confirmed) {
         if (confirmed) {
           setStatus('配对成功。回到电脑点「发送测试推送」，这台手机马上就应该响。', 'ok');
-        } else {
-          setStatus('已回传，但没等到电脑确认。请回到电脑看设备列表里有没有这台手机。', 'warn');
+          return;
         }
+        show('manual', true);
+        setStatus('已回传，但没等到电脑确认。请回到电脑看设备列表里有没有这台手机；也可以复制下面的文本手动配一次。', 'warn');
       });
     } catch (error) {
       setStatus('配对失败：' + (error && error.message ? error.message : String(error)), 'warn');
