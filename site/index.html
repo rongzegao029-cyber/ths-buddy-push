@@ -3,38 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>THS Buddy 配对</title>
-<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="THS 推送">
 <meta name="theme-color" content="#2f6feb">
+<title>THS Buddy 推送配对</title>
+<link rel="manifest" href="manifest.webmanifest?v=3">
+<link rel="apple-touch-icon" href="icon-180.png">
 <style>
 :root{color-scheme:light dark}
-body{margin:0;padding:28px 20px;font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;max-width:560px}
-h1{font-size:19px;margin:0 0 6px}
-p{margin:8px 0}
+body{margin:0;padding:26px 20px 40px;font:16px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;max-width:600px;-webkit-text-size-adjust:100%}
+h1{font-size:20px;margin:0 0 8px}
+p{margin:10px 0}
 .muted{opacity:.62;font-size:13px}
-#status{margin:18px 0;padding:12px 14px;border-radius:9px;background:rgba(128,128,128,.14)}
-#status.ok{background:rgba(26,127,55,.16)}
+#status{margin:16px 0;padding:13px 15px;border-radius:10px;background:rgba(128,128,128,.14);font-size:15px}
+#status.ok{background:rgba(26,127,55,.18)}
 #status.warn{background:rgba(180,35,24,.16)}
-textarea{width:100%;min-height:130px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;padding:10px;border-radius:9px;border:1px solid rgba(128,128,128,.45);background:transparent;color:inherit}
-button{padding:9px 15px;border-radius:8px;border:1px solid rgba(128,128,128,.45);background:rgba(128,128,128,.12);color:inherit;font:inherit;cursor:pointer;margin-top:10px}
-ol{padding-left:20px}
+#status.busy{background:rgba(47,111,235,.16)}
+#iosSteps{border:1px solid rgba(128,128,128,.4);border-radius:10px;padding:6px 18px 12px;margin:14px 0}
+#iosSteps ol{padding-left:20px;margin:10px 0}
+#codeBox{margin:16px 0}
+#codeBox label{display:block;font-size:13px;opacity:.75;margin-bottom:6px}
+#codeInput{width:100%;box-sizing:border-box;padding:12px;font:600 24px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.24em;text-align:center;text-transform:uppercase;border:1px solid rgba(128,128,128,.5);border-radius:10px;background:transparent;color:inherit}
+button{display:block;width:100%;margin-top:12px;padding:14px;border-radius:10px;border:1px solid rgba(128,128,128,.45);background:rgba(128,128,128,.12);color:inherit;font:inherit;font-size:16px;cursor:pointer}
+button.primary{background:#2f6feb;border-color:#2f6feb;color:#fff;font-weight:600}
+button[hidden]{display:none}
+textarea{width:100%;box-sizing:border-box;min-height:120px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;padding:10px;border-radius:10px;border:1px solid rgba(128,128,128,.45);background:transparent;color:inherit}
+details{margin-top:24px;font-size:13px}
+pre{white-space:pre-wrap;word-break:break-all;font-size:12px;opacity:.8}
 </style>
 </head>
 <body>
-<h1>把 THS Buddy 的告警推到这台手机</h1>
-<p class="muted">不需要安装 App，不需要注册账号，也没有每日条数上限。推送由你电脑上的 THS Buddy 直接发到浏览器的推送服务。</p>
+<h1>把这台手机接到 THS Buddy</h1>
+<p class="muted">不需要安装 App、不需要注册账号、没有每日条数上限。推送由你电脑上的 THS Buddy 直接发到浏览器的推送服务。</p>
 <div id="status">正在初始化…</div>
+
+<div id="iosSteps" hidden>
+<ol>
+<li>点 Safari 底部的「分享」按钮</li>
+<li>选「添加到主屏幕」，再点「添加」</li>
+<li><b>回到桌面，点刚出现的那个图标</b>，在那里继续</li>
+</ol>
+<p class="muted">必须先加到主屏幕：iOS 只允许「主屏幕网页应用」接收推送，普通 Safari 标签页拿不到 Push 能力。</p>
+</div>
+
+<div id="codeBox" hidden>
+<label for="codeInput">输入电脑屏幕上显示的 6 位配对码</label>
+<input id="codeInput" inputmode="latin" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="8" placeholder="K7M2QP">
+<p class="muted" id="codeWhy">主屏幕网页应用的存储与 Safari 是隔离的，二维码里的参数传不过来，所以需要你在电脑上看一眼这 6 位。</p>
+</div>
+
+<button id="go" class="primary" type="button" hidden>开始配对</button>
+
 <div id="manual" hidden>
-<p class="muted">如果上面提示自动回传失败，请复制下面这段文本，粘贴到电脑上 THS Buddy 控制台的“手动配对”输入框里。</p>
+<p class="muted">自动回传失败时：点下面「复制」，把这段文本发到电脑上 THS Buddy 控制台的「手动配对」里。</p>
 <textarea id="manualText" readonly></textarea>
 <button id="copy" type="button">复制</button>
 </div>
-<p class="muted" style="margin-top:22px"><strong>iPhone 用户注意：</strong>iOS 只在“添加到主屏幕”后的网页应用里支持推送。</p>
-<ol class="muted">
-<li>点 Safari 底部的“分享”</li>
-<li>选“添加到主屏幕”</li>
-<li>回桌面，点新加的图标打开，再完成配对</li>
-</ol>
-<script src="pair.js"></script>
+
+<details>
+<summary>诊断信息（如果出错，请把这里的内容发给电脑端）</summary>
+<pre id="diagText">…</pre>
+<button id="copyDiag" type="button">复制诊断信息</button>
+</details>
+
+<script src="pair.js?v=3"></script>
 </body>
 </html>
