@@ -62,7 +62,6 @@ function reportSubscription(subscription) {
     return Promise.all(state.topics.map(function (topic) {
       return fetch('https://ntfy.sh/' + topic, {
         method: 'POST',
-        cache: 'no-store',
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
         body: body
       }).catch(function () { return null; });

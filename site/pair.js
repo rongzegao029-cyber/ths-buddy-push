@@ -91,7 +91,6 @@
   function publish(topic, body) {
     return fetch(BUS + '/' + topic, {
       method: 'POST',
-      cache: 'no-store',
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
       body: body
     }).then(function (response) { return response.ok; }).catch(function () { return false; });
