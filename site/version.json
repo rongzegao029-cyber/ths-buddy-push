@@ -1,0 +1,6 @@
+{
+  "site": "ths-buddy-push-pair",
+  "siteVersion": "5",
+  "entry": "index.html",
+  "note": "线上站点版本。必须与插件源码 src/pairing/pairing.ts 里的 PAIRING_SITE_VERSION 一致；pnpm pair-site:check <origin> 用这个数字判断线上部署的是不是当前这一版。"
+}

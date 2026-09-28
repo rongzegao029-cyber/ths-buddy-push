@@ -1,8 +1,9 @@
 (function () {
   'use strict';
 
-  var VERSION = '4';
-  var BUS = 'https://ntfy.sh';
+  var VERSION = '5';
+  // 兜底 pub/sub 总线。电脑端可以在配对链接里带 b=https://… 覆盖它（自建 ntfy）。
+  var DEFAULT_BUS = 'https://ntfy.sh';
   var JOIN_PREFIX = 'thsbuddy-join-';
   var PAIR_PREFIX = 'thsbuddy-pair-';
   var STORE_KEY = 'ths-buddy-pair-v3';
@@ -11,7 +12,7 @@
   var ACK_TRIES = 14;
   var ACK_INTERVAL = 4500;
 
-  var state = { token: '', key: '', code: '', label: 'THS Buddy' };
+  var state = { token: '', key: '', code: '', label: 'THS Buddy', bus: '' };
 
   function el(id) { return document.getElementById(id); }
   function text(id, value) { var node = el(id); if (node) node.textContent = value; }
@@ -20,6 +21,18 @@
     var node = el('status');
     node.textContent = message;
     node.className = kind || '';
+  }
+
+  /** 只接受 https 源，避免电脑端一个笔误把订阅信息发到 http 上去。 */
+  function normalizeBus(value) {
+    var trimmed = String(value || '').trim().replace(/\/+$/, '');
+    return /^https:\/\/[^\s/?#]+/.test(trimmed) ? trimmed : '';
+  }
+
+  function busUrl() { return state.bus || DEFAULT_BUS; }
+
+  function busHost() {
+    try { return new URL(busUrl()).host; } catch (error) { return busUrl(); }
   }
 
   function isIOS() {
@@ -53,7 +66,7 @@
       var token = params.get('t') || '';
       var code = (params.get('c') || '').toUpperCase();
       if (token || code) {
-        return { token: token, key: params.get('k') || '', code: code, label: params.get('s') || '' };
+        return { token: token, key: params.get('k') || '', code: code, label: params.get('s') || '', bus: params.get('b') || '' };
       }
     }
     return null;
@@ -89,7 +102,7 @@
   }
 
   function publish(topic, body) {
-    return fetch(BUS + '/' + topic, {
+    return fetch(busUrl() + '/' + topic, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
       body: body
@@ -97,7 +110,7 @@
   }
 
   function readMessages(list) {
-    return fetch(BUS + '/' + list.join(',') + '/json?poll=1&since=all', {
+    return fetch(busUrl() + '/' + list.join(',') + '/json?poll=1&since=all', {
       cache: 'no-store',
       headers: { Accept: 'application/x-ndjson' }
     }).then(function (response) {
@@ -214,7 +227,7 @@
       var results = await Promise.all(list.map(function (topic) { return publish(topic, payload); }));
       if (results.indexOf(true) < 0) {
         show('manual', true);
-        setStatus('自动回传失败（网络到不了 ntfy.sh）。请复制下面的文本，发到电脑上控制台的「手动配对」。', 'warn');
+        setStatus('自动回传失败（网络到不了 ' + busHost() + '）。请复制下面的文本，发到电脑上控制台的「手动配对」。', 'warn');
         return;
       }
       await rememberForServiceWorker(list);
@@ -242,6 +255,7 @@
       'iOS: ' + (ios ? '是' : '否') + ' · 主屏幕模式: ' + (standalone ? '是' : '否'),
       'Service Worker: ' + ('serviceWorker' in navigator ? '可用' : '不可用') + ' · PushManager: ' + ('PushManager' in window ? '可用' : '不可用'),
       '通知权限: ' + (typeof Notification === 'undefined' ? '无 Notification' : Notification.permission),
+      '配对页版本: v' + VERSION + ' · 回传总线: ' + busUrl(),
       '参数: token=' + (state.token ? state.token.slice(0, 8) + '…' : '无') + ' code=' + (state.code || '无') + ' key=' + (state.key ? '有' : '无'),
       'standalone 标记: ' + String(window.navigator.standalone),
       'UA: ' + navigator.userAgent
@@ -281,6 +295,7 @@
       state.key = fromUrl.key;
       state.code = fromUrl.code;
       if (fromUrl.label) state.label = fromUrl.label;
+      if (normalizeBus(fromUrl.bus)) state.bus = normalizeBus(fromUrl.bus);
       writeStore();
     } else {
       var stored = readStore();
@@ -289,6 +304,7 @@
         state.key = typeof stored.key === 'string' ? stored.key : '';
         state.code = typeof stored.code === 'string' ? stored.code : '';
         state.label = typeof stored.label === 'string' && stored.label ? stored.label : 'THS Buddy';
+        state.bus = normalizeBus(stored.bus);
       }
     }
     render();

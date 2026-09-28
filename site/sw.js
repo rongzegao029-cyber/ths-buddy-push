@@ -1,5 +1,5 @@
-/* THS Buddy push service worker — version 4 */
-var VERSION = '4';
+/* THS Buddy push service worker — version 5 */
+var VERSION = '5';
 var STATE_URL = 'state.json';
 var CACHE_NAME = 'ths-buddy-pair';
 
