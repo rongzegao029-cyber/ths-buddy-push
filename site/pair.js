@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '5';
+  var VERSION = '6';
   // 兜底 pub/sub 总线。电脑端可以在配对链接里带 b=https://… 覆盖它（自建 ntfy）。
   var DEFAULT_BUS = 'https://ntfy.sh';
   var JOIN_PREFIX = 'thsbuddy-join-';
